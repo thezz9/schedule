@@ -28,27 +28,27 @@ public class ScheduleController {
 
     /** 일정 전체 + 조건 조회 */
     @GetMapping
-    public ResponseEntity<List<ScheduleResponseDto>> getAllSchedules(@RequestParam(required = false) String author,
+    public ResponseEntity<List<ScheduleResponseDto>> getAllSchedules(@RequestParam(required = false) Long authorId,
                                                                      @RequestParam(required = false) LocalDate updatedAt) {
-        return new ResponseEntity<>(scheduleService.getAllSchedules(author, updatedAt), HttpStatus.OK);
+        return new ResponseEntity<>(scheduleService.getAllSchedules(authorId, updatedAt), HttpStatus.OK);
     }
 
     /** 일정 단건 조회 */
-    @GetMapping("/{id}")
-    public ResponseEntity<ScheduleResponseDto> getScheduleById(@PathVariable Long id) {
-        return new ResponseEntity<>(scheduleService.getScheduleById(id, true), HttpStatus.OK);
+    @GetMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleResponseDto> getScheduleById(@PathVariable Long scheduleId) {
+        return new ResponseEntity<>(scheduleService.getScheduleById(scheduleId), HttpStatus.OK);
     }
 
     /** 일정 수정 */
-    @PutMapping("/{id}")
-    public ResponseEntity<ScheduleResponseDto> updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto dto) {
-        return new ResponseEntity<>(scheduleService.updateSchedule(id, dto.getAuthor(), dto.getDetails(), dto.getPassword()), HttpStatus.OK);
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleResponseDto> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleRequestDto dto) {
+        return new ResponseEntity<>(scheduleService.updateSchedule(scheduleId, dto.getTask(), dto.getPassword()), HttpStatus.OK);
     }
 
     /** 일정 삭제 */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto dto) {
-        scheduleService.deleteSchedule(id, dto.getPassword());
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleRequestDto dto) {
+        scheduleService.deleteSchedule(scheduleId, dto.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

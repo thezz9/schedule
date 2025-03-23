@@ -1,34 +1,26 @@
 package com.thezz9.schedule.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
+@AllArgsConstructor
 public class Schedule {
 
-    private Long id;
-    private String title;
-    private String author;
-    private String details;
+    private Long scheduleId;
+    private String task;
     private String password;
+    private Long authorId;
+    private String name;
+    private String email;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Schedule(String title, String author, String details, String password) {
-        this.title = title;
-        this.author = author;
-        this.details = details;
+    public Schedule(Long authorId, String task, String password) {
+        this.authorId = authorId;
+        this.task = task;
         this.password = password;
-    }
-
-    public Schedule(Long id, String title, String author, String details, String password, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.details = details;
-        this.password = password;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
 }

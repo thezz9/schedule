@@ -1,19 +1,17 @@
 package com.thezz9.schedule.dto;
 
 import com.thezz9.schedule.entity.Schedule;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
 public class ScheduleResponseDto {
 
-    private final Long id;
-    private final String title;
-    private final String author;
-    private final String details;
-    private final String password;
+    private final Long scheduleId;
+    private final String task;
+    private final Long authorId;
+    private final String name;
+    private final String email;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
@@ -23,11 +21,11 @@ public class ScheduleResponseDto {
      *  @param schedule Schedule 엔티티 객체
      * */
     public ScheduleResponseDto(Schedule schedule) {
-        this.id = schedule.getId();
-        this.title = schedule.getTitle();
-        this.author = schedule.getAuthor();
-        this.details = schedule.getDetails();
-        this.password = schedule.getPassword();
+        this.scheduleId = schedule.getScheduleId();
+        this.authorId = schedule.getAuthorId();
+        this.name = schedule.getName();
+        this.email = schedule.getEmail();
+        this.task = schedule.getTask();
         this.createdAt = schedule.getCreatedAt();
         this.updatedAt = schedule.getUpdatedAt();
     }
