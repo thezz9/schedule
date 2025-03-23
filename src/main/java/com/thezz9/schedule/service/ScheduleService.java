@@ -7,12 +7,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ScheduleService {
+
     ScheduleResponseDto createSchedule(ScheduleRequestDto dto);
-    List<ScheduleResponseDto> getAllSchedules();
+    List<ScheduleResponseDto> getAllSchedules(String author, LocalDate updatedAt);
     ScheduleResponseDto getScheduleById(Long id, boolean includePassword);
-    List<ScheduleResponseDto> getSchedulesByCondition(String author, LocalDate updatedAt);
-    ScheduleResponseDto getPasswordById(Long id);
+    String getPasswordById(Long id);
     ScheduleResponseDto updateSchedule(Long id, String author, String details, String password);
     void deleteSchedule(Long id, String password);
-}
 
+}

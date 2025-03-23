@@ -1,6 +1,6 @@
 package com.thezz9.schedule.mapper;
 
-import com.thezz9.schedule.dto.ScheduleResponseDto;
+import com.thezz9.schedule.entity.Schedule;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -9,11 +9,11 @@ import java.sql.SQLException;
 /**
  *  일정 생성 시 등록 정보 조회
  * */
-public class ScheduleRowMapperWithPassword implements RowMapper<ScheduleResponseDto> {
+public class ScheduleRowMapperWithPassword implements RowMapper<Schedule> {
 
     @Override
-    public ScheduleResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new ScheduleResponseDto(
+    public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Schedule(
                 rs.getLong("id"),
                 rs.getString("title"),
                 rs.getString("author"),
@@ -23,5 +23,5 @@ public class ScheduleRowMapperWithPassword implements RowMapper<ScheduleResponse
                 rs.getTimestamp("updated_at").toLocalDateTime()
         );
     }
-
+    
 }

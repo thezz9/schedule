@@ -1,7 +1,7 @@
 package com.thezz9.schedule.repository;
 
-import com.thezz9.schedule.dto.ScheduleResponseDto;
 import com.thezz9.schedule.entity.Schedule;
+import com.thezz9.schedule.mapper.PasswordRowMapper;
 import com.thezz9.schedule.mapper.ScheduleRowMapperWithPassword;
 import com.thezz9.schedule.mapper.ScheduleRowMapperWithoutPassword;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,7 +30,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
      *  boolean includePassword 값 false -> 비밀번호 포함 조회
      * */
     @Override
-    public ScheduleResponseDto createSchedule(Schedule schedule) {
+    public Schedule createSchedule(Schedule schedule) {
         sql = "INSERT INTO schedule (title, author, details, password) VALUES (?, ?, ?, ?)";
 
         // SQL 쿼리 실행 후 DB에서 자동으로 생성된 기본 키 값을 가져오는 데 사용
@@ -51,28 +51,9 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
     /** 일정 전체 조회 */
     @Override
-    public List<ScheduleResponseDto> getAllSchedules() {
-        sql = "SELECT * FROM schedule ORDER BY updated_at DESC";
-        return jdbcTemplate.query(sql, new ScheduleRowMapperWithoutPassword());
-    }
-
-    /** 일정 단건 조회 */
-    @Override
-    public ScheduleResponseDto getScheduleById(Long id, boolean includePassword) {
-        sql = "SELECT * FROM schedule WHERE id = ? ORDER BY updated_at DESC";
-
-        // 비밀번호를 포함한 조회와 제외한 조회를 조건으로 분기
-        if (includePassword) {
-            return jdbcTemplate.queryForObject(sql, new ScheduleRowMapperWithoutPassword(), id);
-        } else {
-            return jdbcTemplate.queryForObject(sql, new ScheduleRowMapperWithPassword(), id);
-        }
-    }
-
-    /** 일정 조건 조회 */
-    @Override
-    public List<ScheduleResponseDto> getSchedulesByCondition(String author, LocalDate updatedAt) {
-        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM schedule WHERE 1=1");
+    public List<Schedule> getAllSchedules(String author, LocalDate updatedAt) {
+        StringBuilder sqlBuilder =
+                new StringBuilder("SELECT id, author, title, details, password, created_at, updated_at FROM schedule WHERE 1=1");
 
         // 동적으로 추가될 파라미터를 저장하는 리스트
         // 조건에 해당하는 값들이 null이 아닌 경우 이 리스트에 추가
@@ -100,19 +81,38 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         return jdbcTemplate.query(sql, new ScheduleRowMapperWithoutPassword(), params.toArray());
     }
 
+    /** 일정 단건 조회 */
     @Override
-    public ScheduleResponseDto getPasswordById(Long id) {
-        return null;
+    public Schedule getScheduleById(Long id, boolean includePassword) {
+        sql = "SELECT * FROM schedule WHERE id = ? ORDER BY updated_at DESC";
+
+        // 비밀번호를 포함한 조회와 제외한 조회를 조건으로 분기
+        if (includePassword) {
+            return jdbcTemplate.queryForObject(sql, new ScheduleRowMapperWithoutPassword(), id);
+        } else {
+            return jdbcTemplate.queryForObject(sql, new ScheduleRowMapperWithPassword(), id);
+        }
     }
 
+    /** 비밀번호 조회 */
     @Override
-    public ScheduleResponseDto updateSchedule(Long id, String author, String details, String password) {
-        return null;
+    public String getPasswordById(Long id) {
+        sql = "SELECT password FROM SCHEDULE WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new PasswordRowMapper(), id);
     }
 
+    /** 일정 수정 */
     @Override
-    public void deleteSchedule(Long id, String password) {
+    public int updateSchedule(Long id, String author, String details, String password) {
+        sql = "UPDATE schedule SET author = ?, details = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, author, details, id);
+    }
 
+    /** 일정 삭제 */
+    @Override
+    public int deleteSchedule(Long id, String password) {
+        sql = "DELETE FROM schedule WHERE id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 
 }

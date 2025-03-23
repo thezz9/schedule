@@ -21,4 +21,14 @@ public class Schedule {
         this.password = password;
     }
 
+    public Schedule(Long id, String title, String author, String details, String password, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.details = details;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
 }
