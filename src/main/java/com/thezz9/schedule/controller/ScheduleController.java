@@ -1,5 +1,6 @@
 package com.thezz9.schedule.controller;
 
+import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.dto.ScheduleRequestDto;
 import com.thezz9.schedule.dto.ScheduleResponseDto;
 import com.thezz9.schedule.service.ScheduleService;
@@ -29,8 +30,10 @@ public class ScheduleController {
     /** 일정 전체 + 조건 조회 */
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> getAllSchedules(@RequestParam(required = false) Long authorId,
-                                                                     @RequestParam(required = false) LocalDate updatedAt) {
-        return new ResponseEntity<>(scheduleService.getAllSchedules(authorId, updatedAt), HttpStatus.OK);
+                                                                     @RequestParam(required = false) LocalDate updatedAt,
+                                                                     @RequestParam(defaultValue = "0") int pageIndex,
+                                                                     @RequestParam(defaultValue = "10") int pageSize) {
+        return new ResponseEntity<>(scheduleService.getAllSchedules(authorId, updatedAt, new Paging(pageIndex, pageSize)), HttpStatus.OK);
     }
 
     /** 일정 단건 조회 */

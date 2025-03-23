@@ -1,5 +1,6 @@
 package com.thezz9.schedule.service;
 
+import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.dto.ScheduleRequestDto;
 import com.thezz9.schedule.dto.ScheduleResponseDto;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public interface ScheduleService {
 
     ScheduleResponseDto createSchedule(ScheduleRequestDto dto);
-    List<ScheduleResponseDto> getAllSchedules(Long authorId, LocalDate updatedAt);
+    List<ScheduleResponseDto> getAllSchedules(Long authorId, LocalDate updatedAt, Paging paging);
     ScheduleResponseDto getScheduleById(Long scheduleId);
     String getPasswordById(Long scheduleId);
     ScheduleResponseDto updateSchedule(Long scheduleId, String task, String password);

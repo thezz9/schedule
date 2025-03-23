@@ -1,5 +1,6 @@
 package com.thezz9.schedule.service;
 
+import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.dto.ScheduleRequestDto;
 import com.thezz9.schedule.dto.ScheduleResponseDto;
 import com.thezz9.schedule.entity.Schedule;
@@ -32,8 +33,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleResponseDto> getAllSchedules(Long authorId, LocalDate updatedAt) {
-        List<Schedule> allSchedules = scheduleRepository.getAllSchedules(authorId, updatedAt);
+    public List<ScheduleResponseDto> getAllSchedules(Long authorId, LocalDate updatedAt, Paging paging) {
+        List<Schedule> allSchedules = scheduleRepository.getAllSchedules(authorId, updatedAt, paging);
         return allSchedules.stream().map(ScheduleResponseDto::new).collect(Collectors.toList());
     }
 

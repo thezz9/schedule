@@ -1,5 +1,6 @@
 package com.thezz9.schedule.repository;
 
+import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.entity.Schedule;
 import com.thezz9.schedule.mapper.PasswordRowMapper;
 import com.thezz9.schedule.mapper.ScheduleRowMapper;
@@ -49,7 +50,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
     /** 일정 전체 조회 */
     @Override
-    public List<Schedule> getAllSchedules(Long authorId, LocalDate updatedAt) {
+    public List<Schedule> getAllSchedules(Long authorId, LocalDate updatedAt, Paging paging) {
         StringBuilder sqlBuilder =
                 new StringBuilder("SELECT schedule_id, s.author_id, name, email, task, password, " +
                         "s.created_at,s.updated_at FROM schedule s JOIN author a ON s.author_id = a.author_id WHERE 1=1");
@@ -70,8 +71,10 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
             params.add(updatedAt);
         }
 
-        // 수정일 기준 내림차순 정렬
-        sqlBuilder.append(" ORDER BY s.updated_at DESC");
+        // 수정일 기준 내림차순 정렬 & 페이징 처리
+        params.add(paging.getPageSize());
+        params.add(paging.getPageOffset());
+        sqlBuilder.append(" ORDER BY s.updated_at DESC LIMIT ? OFFSET ?");
 
         // 최종 SQL 쿼리 생성
         String sql = sqlBuilder.toString();
