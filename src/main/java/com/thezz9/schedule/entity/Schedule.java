@@ -5,22 +5,31 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
 public class Schedule {
 
     private Long scheduleId;
     private String task;
     private String password;
-    private Long authorId;
-    private String name;
-    private String email;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+    private Writer writer; // 작성자 정보
 
-    public Schedule(Long authorId, String task, String password) {
-        this.authorId = authorId;
+    public Schedule(Long scheduleId, String task, String password, Writer writer) {
+        this.scheduleId = scheduleId;
         this.task = task;
         this.password = password;
+        this.writer = writer;
+    }
+
+    public Schedule(Long scheduleId, String task, String password, Long writerId, String name,
+                    String email, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.scheduleId = scheduleId;
+        this.task = task;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.writer = new Writer(writerId, name, email);
     }
 
 }

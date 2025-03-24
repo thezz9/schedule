@@ -14,11 +14,11 @@ public class ScheduleRowMapper implements RowMapper<Schedule> {
                 rs.getLong("schedule_id"),
                 rs.getString("task"),
                 rs.getString("password"),
-                rs.getLong("author_id"),
+                rs.getLong("writer_id"),
                 rs.getString("name"),
                 rs.getString("email"),
-                rs.getTimestamp("s.created_at").toLocalDateTime(),
-                rs.getTimestamp("s.updated_at").toLocalDateTime()
+                rs.getTimestamp("a.created_at").toLocalDateTime(),
+                rs.getTimestamp("a.updated_at").toLocalDateTime()
         );
     }
     

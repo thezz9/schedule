@@ -10,9 +10,9 @@ import java.util.List;
 public interface ScheduleService {
 
     ScheduleResponseDto createSchedule(ScheduleRequestDto dto);
-    List<ScheduleResponseDto> getAllSchedules(Long authorId, LocalDate updatedAt, Paging paging);
-    ScheduleResponseDto getScheduleById(Long scheduleId);
-    String getPasswordById(Long scheduleId);
+    List<ScheduleResponseDto> getAllSchedules(Long writerId, LocalDate updatedAt, Paging paging);
+    ScheduleResponseDto getScheduleByIdOrElseThrow(Long scheduleId);
+    String getPasswordByIdOrElseThrow(Long scheduleId);
     ScheduleResponseDto updateSchedule(Long scheduleId, String task, String password);
     void deleteSchedule(Long scheduleId, String password);
 

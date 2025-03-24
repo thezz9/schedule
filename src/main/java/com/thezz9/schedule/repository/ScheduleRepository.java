@@ -9,10 +9,10 @@ import java.util.List;
 public interface ScheduleRepository {
 
     Schedule createSchedule(Schedule schedule);
-    List<Schedule> getAllSchedules(Long authorId, LocalDate updatedAt, Paging paging);
-    Schedule getScheduleById(Long scheduleId);
-    String getPasswordById(Long scheduleId);
-    int updateSchedule(Long scheduleId, String task);
-    int deleteSchedule(Long scheduleId);
+    List<Schedule> getAllSchedules(Long writerId, LocalDate updatedAt, Paging paging);
+    Schedule getScheduleByIdOrElseThrow(Long scheduleId);
+    String getPasswordByIdOrElseThrow(Long scheduleId);
+    void updateSchedule(Long scheduleId, String task);
+    void deleteSchedule(Long scheduleId);
 
 }
