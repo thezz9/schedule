@@ -4,8 +4,10 @@ import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.dto.ScheduleRequestDto;
 import com.thezz9.schedule.dto.ScheduleResponseDto;
 import com.thezz9.schedule.service.ScheduleService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,6 +19,7 @@ import java.util.Map;
 @ControllerAdvice // 예외 처리를 전역적으로 담당
 @RestController
 @RequestMapping("/schedules")
+@CrossOrigin(origins = "*")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
@@ -26,8 +29,8 @@ public class ScheduleController {
     }
 
     /**
-     * 전역 예외 처리
-     * ResponseStatusException이 발생하면 JSON 응답을 반환함
+     *  전역 예외 처리
+     *  ResponseStatusException이 발생하면 JSON 응답을 반환함
      */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
@@ -38,12 +41,22 @@ public class ScheduleController {
         return ResponseEntity.status(ex.getStatusCode()).body(error);
     }
 
+    /**
+     *  유효성 검증 예외 처리
+     *  MethodArgumentNotValidException이 발생하면 반환함
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("실패: " + ex.getBindingResult());
+    }
+
     /** 일정 생성 API
      *  일정과 비밀번호를 입력받아 새 일정 생성
      *  생성된 일정 정보 반환
      */
     @PostMapping
-    public ResponseEntity<ScheduleResponseDto> createSchedule(@RequestBody ScheduleRequestDto dto) {
+    public ResponseEntity<ScheduleResponseDto> createSchedule(@RequestBody @Valid ScheduleRequestDto dto) {
         return new ResponseEntity<>(scheduleService.createSchedule(dto), HttpStatus.CREATED);
     }
 
@@ -74,7 +87,7 @@ public class ScheduleController {
      *  비밀번호가 일치해야 수정 가능
      */
     @PutMapping("/{scheduleId}")
-    public ResponseEntity<ScheduleResponseDto> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleRequestDto dto) {
+    public ResponseEntity<ScheduleResponseDto> updateSchedule(@PathVariable Long scheduleId, @RequestBody @Valid ScheduleRequestDto dto) {
         return new ResponseEntity<>(scheduleService.updateSchedule(scheduleId, dto.getTask(), dto.getPassword()), HttpStatus.OK);
     }
 
@@ -85,8 +98,8 @@ public class ScheduleController {
      *  향후 복구 가능하도록 데이터는 유지
      */
     @DeleteMapping("/{scheduleId}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleRequestDto dto) {
-        scheduleService.deleteSchedule(scheduleId, dto.getPassword());
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @RequestParam String password) {
+        scheduleService.deleteSchedule(scheduleId, password);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

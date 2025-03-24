@@ -1,6 +1,6 @@
 package com.thezz9.schedule.entity;
 
-import lombok.AllArgsConstructor;
+import com.thezz9.writer.entity.Writer;
 import lombok.Getter;
 import java.time.LocalDateTime;
 

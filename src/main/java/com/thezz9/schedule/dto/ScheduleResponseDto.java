@@ -1,6 +1,7 @@
 package com.thezz9.schedule.dto;
 
 import com.thezz9.schedule.entity.Schedule;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import java.time.LocalDateTime;
 

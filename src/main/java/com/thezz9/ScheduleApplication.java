@@ -1,4 +1,4 @@
-package com.thezz9.schedule;
+package com.thezz9;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
