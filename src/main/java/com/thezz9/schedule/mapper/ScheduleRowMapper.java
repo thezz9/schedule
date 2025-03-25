@@ -19,7 +19,7 @@ public class ScheduleRowMapper implements RowMapper<Schedule> {
                 rs.getString("password"),
                 rs.getTimestamp("a.created_at").toLocalDateTime(),
                 rs.getTimestamp("a.updated_at").toLocalDateTime(),
-                writer // 외부에서 생성된 Writer 객체를 사용
+                writer // 외부에서 생성된 Writer 객체 사용
         );
     }
 
