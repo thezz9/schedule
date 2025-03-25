@@ -34,3 +34,6 @@
 
 ## 사용 화면
 ![image](https://github.com/user-attachments/assets/6d3708e8-fdc8-433f-ab2a-57b8d64add3f)
+
+## 트러블슈팅
+**[velog](https://velog.io/@harvard--/Spring-%EC%9D%BC%EC%A0%95-%EA%B4%80%EB%A6%AC-API-%EA%B5%AC%ED%98%84)**
