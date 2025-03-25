@@ -53,9 +53,6 @@ public class WriterServiceImpl implements WriterService {
     @Override
     public WriterResponseDto getWriterByIdOrElseThrow(Long writerId) {
         Writer writer = writerRepository.getWriterByIdOrElseThrow(writerId);
-        if (writer == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id가 " + writerId + "인 회원이 존재하지 않습니다.");
-        }
         return new WriterResponseDto(writer);
     }
 

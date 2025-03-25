@@ -2,10 +2,13 @@ package com.thezz9.writer.repository;
 
 import com.thezz9.writer.entity.Writer;
 import com.thezz9.writer.mapper.WriterRowMapper;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -59,8 +62,13 @@ public class WriterRepositoryImpl implements WriterRepository {
     @Override
     public Writer getWriterByIdOrElseThrow(Long writerId) {
         sql = "SELECT writer_id, name, email, created_at, updated_at FROM writer where writer_id = ?";
-        List<Writer> result = jdbcTemplate.query(sql, new WriterRowMapper(), writerId);
-        return result.stream().findAny().orElse(null);
+
+        try {
+            return jdbcTemplate.queryForObject(sql, new WriterRowMapper(), writerId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id가 " + writerId + "인 회원이 존재하지 않습니다.");
+        }
+
     }
 
 }

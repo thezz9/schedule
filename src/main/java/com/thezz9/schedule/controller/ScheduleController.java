@@ -1,22 +1,19 @@
 package com.thezz9.schedule.controller;
 
-import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.dto.ScheduleRequestDto;
 import com.thezz9.schedule.dto.ScheduleResponseDto;
 import com.thezz9.schedule.service.ScheduleService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@ControllerAdvice // 예외 처리를 전역적으로 담당
 @RestController
 @RequestMapping("/schedules")
 @CrossOrigin(origins = "*")
@@ -26,29 +23,6 @@ public class ScheduleController {
 
     public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
-    }
-
-    /**
-     *  전역 예외 처리
-     *  ResponseStatusException이 발생하면 JSON 응답을 반환함
-     */
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("status", ex.getStatusCode().value()); // HTTP 상태 코드
-        error.put("error", HttpStatus.valueOf(ex.getStatusCode().value()).getReasonPhrase()); // 상태 코드 설명
-        error.put("message", ex.getReason()); // 예외 발생 시 전달된 메시지
-        return ResponseEntity.status(ex.getStatusCode()).body(error);
-    }
-
-    /**
-     *  유효성 검증 예외 처리
-     *  MethodArgumentNotValidException이 발생하면 반환함
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("실패: " + ex.getBindingResult());
     }
 
     /** 일정 생성 API
@@ -68,9 +42,8 @@ public class ScheduleController {
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> getAllSchedules(@RequestParam(required = false) Long writerId,
                                                                      @RequestParam(required = false) LocalDate updatedAt,
-                                                                     @RequestParam(defaultValue = "0") int pageIndex,
-                                                                     @RequestParam(defaultValue = "10") int pageSize) {
-        return new ResponseEntity<>(scheduleService.getAllSchedules(writerId, updatedAt, new Paging(pageIndex, pageSize)), HttpStatus.OK);
+                                                                     @PageableDefault(size = 5, page = 0) Pageable pageable) {
+        return new ResponseEntity<>(scheduleService.getAllSchedules(writerId, updatedAt, pageable), HttpStatus.OK);
     }
 
     /** 일정 단건 조회 API
@@ -94,11 +67,12 @@ public class ScheduleController {
     /** 일정 삭제 API (소프트 딜리트 적용)
      *  일정 ID를 받아 해당 일정 삭제
      *  비밀번호가 일치해야 삭제 가능
-     *  '삭제 여부' 컬럼을 업데이트하여 논리적으로 삭제 처리
+     *  'deleted_at' 컬럼을 업데이트하여 논리적으로 삭제 처리
      *  향후 복구 가능하도록 데이터는 유지
      */
     @DeleteMapping("/{scheduleId}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @RequestParam String password) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId,
+                                               @RequestParam @Valid String password) {
         scheduleService.deleteSchedule(scheduleId, password);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

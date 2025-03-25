@@ -1,14 +1,15 @@
 package com.thezz9.schedule.repository;
 
-import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.entity.Schedule;
-import com.thezz9.schedule.mapper.PasswordRowMapper;
 import com.thezz9.schedule.mapper.ScheduleRowMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
@@ -19,7 +20,6 @@ import java.util.List;
 @Repository
 public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
-    private String sql = "";
     private final JdbcTemplate jdbcTemplate;
 
     public ScheduleRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -33,7 +33,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
      */
     @Override
     public Schedule createSchedule(Schedule schedule) {
-        sql = "INSERT INTO schedule (writer_id, task, password) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO schedule (writer_id, task, password) VALUES (?, ?, ?)";
 
         // SQL 쿼리 실행 후 DB에서 자동으로 생성된 기본 키 값을 가져오는 데 사용
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -56,7 +56,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
      *  페이징(paging) 처리를 하여 결과를 반환
      */
     @Override
-    public List<Schedule> getAllSchedules(Long writerId, LocalDate updatedAt, Paging paging) {
+    public List<Schedule> getAllSchedules(Long writerId, LocalDate updatedAt, Pageable pageable) {
         StringBuilder sqlBuilder =
                 new StringBuilder("SELECT schedule_id, a.writer_id, name, email, task, password, a.created_at, " +
                         "a.updated_at FROM schedule a JOIN writer b ON a.writer_id = b.writer_id WHERE deleted_at " +
@@ -79,8 +79,8 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         }
 
         // 수정일 기준 내림차순 정렬 & 페이징 처리
-        params.add(paging.getPageSize());
-        params.add(paging.getPageOffset());
+        params.add(pageable.getPageSize());
+        params.add(pageable.getPageSize() * pageable.getPageNumber());
         sqlBuilder.append(" ORDER BY a.updated_at DESC LIMIT ? OFFSET ?");
 
         // 최종 SQL 쿼리 생성
@@ -97,24 +97,14 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
      */
     @Override
     public Schedule getScheduleByIdOrElseThrow(Long scheduleId) {
-        sql = "SELECT schedule_id, a.writer_id, name, email, task, password, a.created_at,a.updated_at "
+        String sql = "SELECT schedule_id, a.writer_id, name, email, task, password, a.created_at,a.updated_at "
             + "FROM schedule a JOIN writer b ON a.writer_id = b.writer_id WHERE schedule_id = ? "
-            + "AND a.deleted_at IS NULL ORDER BY a.updated_at DESC";
-        List<Schedule> result = jdbcTemplate.query(sql, new ScheduleRowMapper(), scheduleId);
-        return result.stream().findAny().orElse(null);
-    }
+            + "AND a.deleted_at IS NULL";
 
-    /** 비밀번호 조회
-     *  scheduleId를 기준으로 해당 일정의 비밀번호 조회
-     *  일치하는 일정이 없으면 null 반환
-     */
-    @Override
-    public String getPasswordByIdOrElseThrow(Long scheduleId) {
         try {
-            sql = "SELECT password FROM schedule WHERE schedule_id = ?";
-            return jdbcTemplate.queryForObject(sql, new PasswordRowMapper(), scheduleId);
+            return jdbcTemplate.queryForObject(sql, new ScheduleRowMapper(), scheduleId);
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id가 " + scheduleId + "인 일정이 존재하지 않습니다.");
         }
     }
 
@@ -124,7 +114,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
      */
     @Override
     public void updateSchedule(Long scheduleId, String task) {
-        sql = "UPDATE schedule SET task = ? WHERE schedule_id = ?";
+        String sql = "UPDATE schedule SET task = ? WHERE schedule_id = ?";
         jdbcTemplate.update(sql, task, scheduleId);
     }
 
@@ -135,7 +125,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
      */
     @Override
     public void deleteSchedule(Long scheduleId) {
-        sql = "UPDATE schedule SET deleted_at = ? WHERE schedule_id = ?";
+        String sql = "UPDATE schedule SET deleted_at = ? WHERE schedule_id = ?";
         jdbcTemplate.update(sql, LocalDateTime.now(), scheduleId);
     }
 

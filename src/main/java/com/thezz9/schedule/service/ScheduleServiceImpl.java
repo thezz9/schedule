@@ -1,12 +1,11 @@
 package com.thezz9.schedule.service;
 
-import com.thezz9.schedule.dto.Paging;
 import com.thezz9.schedule.dto.ScheduleRequestDto;
 import com.thezz9.schedule.dto.ScheduleResponseDto;
 import com.thezz9.schedule.entity.Schedule;
 import com.thezz9.schedule.repository.ScheduleRepository;
-import com.thezz9.schedule.repository.ScheduleRepositoryImpl;
 import com.thezz9.writer.entity.Writer;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +19,9 @@ import java.util.stream.Collectors;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
-    private final ScheduleRepositoryImpl scheduleRepositoryImpl;
 
-    public ScheduleServiceImpl(ScheduleRepository scheduleRepository, ScheduleRepositoryImpl scheduleRepositoryImpl) {
+    public ScheduleServiceImpl(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
-        this.scheduleRepositoryImpl = scheduleRepositoryImpl;
     }
 
     /**
@@ -44,8 +41,8 @@ public class ScheduleServiceImpl implements ScheduleService {
      *  페이지가 넘어갈 경우 [](빈배열) 반환
      */
     @Override
-    public List<ScheduleResponseDto> getAllSchedules(Long writerId, LocalDate updatedAt, Paging paging) {
-        List<Schedule> allSchedules = scheduleRepository.getAllSchedules(writerId, updatedAt, paging);
+    public List<ScheduleResponseDto> getAllSchedules(Long writerId, LocalDate updatedAt, Pageable pageable) {
+        List<Schedule> allSchedules = scheduleRepository.getAllSchedules(writerId, updatedAt, pageable);
         return allSchedules.stream().map(ScheduleResponseDto::new).collect(Collectors.toList());
     }
 
@@ -57,24 +54,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleResponseDto getScheduleByIdOrElseThrow(Long scheduleId) {
         Schedule schedule = scheduleRepository.getScheduleByIdOrElseThrow(scheduleId);
-        if (schedule == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id가 " + scheduleId + "인 일정이 존재하지 않습니다.");
-        }
         return new ScheduleResponseDto(schedule);
-    }
-
-    /**
-     *  비밀번호 조회
-     *  scheduleId를 기준으로 비밀번호를 조회
-     *  비밀번호가 없으면 404 상태 코드와 함께 예외 발생
-     */
-    @Override
-    public String getPasswordByIdOrElseThrow(Long scheduleId) {
-        String password = scheduleRepository.getPasswordByIdOrElseThrow(scheduleId);
-        if (password == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 일정의 비밀번호를 찾을 수 없습니다.");
-        }
-        return password;
     }
 
     /**
@@ -86,26 +66,10 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleResponseDto updateSchedule(Long scheduleId, String task, String password) {
 
-        // 해당 일정이 존재하는지 확인
         Schedule schedule = scheduleRepository.getScheduleByIdOrElseThrow(scheduleId);
-        if (schedule == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id가 " + scheduleId + "인 일정이 존재하지 않습니다.");
-        }
-
-        // 비밀번호 조회
-        String dbPassword = getPasswordByIdOrElseThrow(scheduleId);
-
-        // 필수값 검증
-        if (password == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 필수 입력값입니다.");
-        }
-
-        if (task == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "task는 필수 입력값입니다.");
-        }
 
         // 비밀번호 검증
-        if (!password.equals(dbPassword)) {
+        if (schedule.verifyPassword(password)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
         }
 
@@ -124,23 +88,10 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional
     @Override
     public void deleteSchedule(Long scheduleId, String password) {
-
-        // 해당 일정이 존재하는지 확인
         Schedule schedule = scheduleRepository.getScheduleByIdOrElseThrow(scheduleId);
-        if (schedule == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id가 " + scheduleId + "인 일정이 존재하지 않습니다.");
-        }
-
-        // 비밀번호 조회
-        String dbPassword = getPasswordByIdOrElseThrow(scheduleId);
-
-        // 비밀번호가 입력되지 않았을 경우 예외 발생
-        if (password == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 필수 입력값입니다.");
-        }
 
         // 입력된 비밀번호와 실제 비밀번호가 일치하지 않을 경우 예외 발생
-        if (!password.equals(dbPassword)) {
+        if (schedule.verifyPassword(password)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
         }
 
