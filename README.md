@@ -1,8 +1,8 @@
-#  📅 일정관리 API
+#  📅 일정 관리 API
 
 이 프로젝트는 일정 관리 기능을 제공하는 API로, `Postman`을 사용하여 테스트할 수 있습니다. 
 
-사용자 인증, 일정 조회, 생성, 수정, 삭제 기능을 제공하며, 3계층 구조(`3 Layer Architecture`)를 적용하여 유지보수성을 향상시켰습니다. 
+일정 조회, 생성, 수정, 삭제 기능을 제공하며, 3계층 구조(`3 Layer Architecture`)를 적용하여 유지보수성을 향상시켰습니다. 
 
 `JDBC`를 통해 MySQL 데이터베이스와 연동됩니다.
 
@@ -26,7 +26,7 @@
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=flat&logo=postman&logoColor=white)
 
-## 📝 Schedule API 명세서
+## 📝 일정 관리 API 명세서
 ![image](https://github.com/user-attachments/assets/368c22bf-78e3-4dfa-8860-7dc959dc482c)
 
 ## 📊 ERD
